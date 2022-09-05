@@ -1,0 +1,244 @@
+import disnake
+from disnake.ext import commands
+import json
+from pathlib import Path
+import asyncio
+import aiofiles
+import datetime
+from disnake import HTTPException
+from typing import Optional, Union
+
+
+
+async def get_json_info():
+  p = Path('/home/runner/codevincent/config.json')
+  async with aiofiles.open(p) as f:
+    content = await f.read()
+  return json.loads(content)
+  
+
+class Moderation(commands.Cog):
+  def __init__(self, bot):
+    self.bot = bot
+    json_info = asyncio.run(get_json_info())
+    self.json_info = json_info
+
+
+  #@commands.slash_command(description="Timeout a member")
+  #@commands.has_permissions(moderate_members=True)
+  #async def timeout(
+  #  self,
+  #  inter,
+  #  member: disnake.Member = commands.Param(
+  #    name="member", 
+  #    description="The member to timeout"
+  #  ),
+  #  duration: Optional[str] = commands.Param(
+  #    datetime.timedelta(hours=1),
+  #    name="duration",
+  #    description="The duration of the timeout, time keys: d, h, m, s (max 28d)"
+  #  ),
+  #  reason: Optional[str] = commands.Param(
+  #    "No reason provided",
+  #    name="reason",
+  #    description="The reason why the member was timed out"
+  #  )
+  #):
+    #channel_logs_id = self.json_info[str(inter.guild.id)]['channel_logs_id']
+    #guild = inter.guild
+    #channel_logs = guild.get_channel(int(channel_logs_id))
+    #bot_as_member = guild.me
+
+    #if member == bot_as_member:
+      #await inter.response.send_message("You cant timeout me", ephemeral=True)
+
+    #if duration.endswith('h'):
+      #duration_converted = datetime.timedelta(hours=float(duration[:len(duration)-1]))
+
+    #elif duration.endswith('d'):
+      #duration_converted = datetime.timedelta(days=float(duration[:len(duration)-1]))
+
+    #elif duration.endswith('m'):
+      #duration_converted = datetime.timedelta(minutes=float(duration[:len(duration)-1]))
+
+    #elif duration.endswith('s'):
+      #duration_converted = datetime.timedelta(seconds=float(duration[:len(duration)-1]))
+    
+    #try:
+      #assert bot_as_member.top_role.position > member.top_role.position
+      #await member.timeout(duration=duration_converted, reason=reason)
+      #await inter.response.send_message(f"{member} was timed out by {inter.author.mention} for a duration of {duration} with the given reason `{reason}`")
+      #embed = disnake.Embed(
+      #  title="Member timed out",
+      #  description=f"{member} was timed out by {inter.author.mention} for a duration of {duration} with the given reason `{reason}`",
+      #  color=disnake.Color.from_rgb(208, 255, 0),
+      #  timestamp=datetime.datetime.utcnow()
+      #)
+      #embed.set_author(name=inter.author, icon_url=inter.author.avatar or inter.author.default_avatar)
+      #embed.set_footer(text=f"Member timed out id: {member.id}")
+      #await channel_logs.send(embed=embed)
+      #try:
+      #  await member.send(f"You was timed out in the server {guild} by {inter.author} for a duration of {duration} with the given reason `{reason}`")
+      #except:
+      #  await channel_logs.send(f"{member} has DMs closed! (Timeout message was not sent to him)")
+
+    #except:
+    #  await inter.response.send_message("I can't timeout member that have the same or a higher position than me!", ephemeral=True)
+  
+
+  @commands.slash_command(description="Kick a member")
+  @commands.has_permissions(kick_members=True)
+  async def kick(
+    self,
+    inter,
+    member: disnake.Member = commands.Param(
+      name="member", 
+      description="The member to kick"
+    ),
+    reason: str = commands.Param(
+      "No reason provided", 
+      name="reason", 
+      description="The reason why the member was kicked"
+    )
+  ):
+    channel_logs_id = self.json_info[str(inter.guild.id)]['channel_logs_id']
+    guild = inter.guild
+    channel_logs = guild.get_channel(int(channel_logs_id))
+    bot_as_member = guild.me
+
+    if member == bot_as_member:
+      await inter.response.send_message("You can't kick me!", ephemeral=True)
+
+    else:
+      try:
+        assert bot_as_member.top_role.position > member.top_role.position
+        try:
+          await member.send(f"You was kicked from {guild} by {inter.author} with the reason `{reason}`")
+        except:
+          await channel_logs.send(f"{member} has DMs closed! (Kicked message was not sent)")
+        await member.kick(reason=reason)
+        await inter.response.send_message(f"{member} was kicked by {inter.author.mention} reason: `{reason}`")
+        embed = disnake.Embed(
+          title="Member kicked",
+          description=f"{member} was kicked by {inter.author.mention} with reason `{reason}`",
+          color=disnake.Color.from_rgb(208, 255, 0),
+          timestamp=datetime.datetime.utcnow()
+        )
+        interAvatar = inter.author.avatar or inter.author.default_avatar
+        embed.set_author(name=inter.author, icon_url=interAvatar)
+        embed.set_footer(text=f"Member kicked id:{member.id} •")
+        await channel_logs.send(embed=embed)
+      except:
+        await inter.response.send_message("I can't kick member that have the same or a higher position than me!", ephemeral=True)
+
+
+  @commands.slash_command(description="Unban a member")
+  @commands.has_permissions(ban_members=True)
+  async def unban(
+    self,
+    inter,
+    user_id = commands.Param(
+      name="user_id", 
+      description="The member to unban"
+    ),
+    reason: str = commands.Param(
+      "No reason provided", 
+      name="reason", 
+      description="The reason why the member was unbanned"
+    )
+  ):
+    channel_logs_id = self.json_info[str(inter.guild.id)]['channel_logs_id']
+    guild = inter.guild
+    channel_logs = guild.get_channel(int(channel_logs_id))
+
+    user_obj = await self.bot.fetch_user(int(user_id))
+
+    banned_user = [ban.user for ban in await guild.bans()]
+
+    if user_obj in guild.members:
+      await inter.response.send_message(f"{user_obj} is not banned from the server", ephemeral=True)
+
+    elif not user_obj in guild.members and user_obj in banned_user:
+      try:
+        await guild.unban(user_obj, reason=reason)
+        await inter.response.send_message(f"{user_obj} was unbanned by {inter.author.mention} reason: `{reason}`")
+        embed = disnake.Embed(
+        title="Member unbanned",
+        description=f"{user_obj} was unbanned by {inter.author.mention} with reason `{reason}`",
+        color=disnake.Color.from_rgb(208, 255, 0),
+        timestamp=datetime.datetime.utcnow()
+      )
+        interAvatar = inter.author.avatar or inter.author.default_avatar
+        embed.set_author(name=inter.author, icon_url=interAvatar)
+        embed.set_footer(text=f"Member unbanned id:{user_obj.id}")
+        await channel_logs.send(embed=embed)
+        
+      except HTTPException:
+        await inter.response.send_message("Something went wrong during unban operation, contact the owner of the bot (most likely unban http request failed)", ephemeral=True)
+
+    else:
+      await inter.response.send_message(f"{user_obj} is not banned and not inside the server", ephemeral=True)
+
+
+  @commands.slash_command(description="Ban a member")
+  @commands.has_permissions(ban_members=True)
+  async def ban(
+    self, 
+    inter, 
+    member: disnake.Member = commands.Param(
+      name="member", 
+      description="The member to ban"
+    ),
+    reason: str = commands.Param(
+      "No reason provided", 
+      name="reason", 
+      description="The reason why the member was banned"
+    ),
+    delete_message_days: int = commands.Param(
+      0,
+      choices = {
+        "Keep the message history intact": 0,
+        "Delete 1 day of the message history": 1,
+        "Delete 2 days of the message history": 2,
+        "Delete 3 days of the message history": 3,
+        "Delete 4 days of the message history": 4,
+        "Delete 5 days of the message history": 5,
+        "Delete 6 days of the message history": 6,
+        "Delete 7 days of the message history": 7
+      }
+    )
+  ):
+    channel_logs_id = self.json_info[str(inter.guild.id)]['channel_logs_id']
+    guild = inter.guild
+    channel_logs = guild.get_channel(int(channel_logs_id))
+    bot_as_member = guild.me
+    
+    if member == bot_as_member:
+      await inter.response.send_message("You cant ban me!", ephemeral=True)
+
+    else:
+      try:
+        assert bot_as_member.top_role.position > member.top_role.position
+        try:
+          await member.send(f"You was banned from {guild} by {inter.author} with the reason `{reason}`")
+        except:
+          await channel_logs.send(f"{member} has DMs closed! (Banned message was not sent)")
+        await member.ban(delete_message_days=delete_message_days, reason=reason)
+        await inter.response.send_message(f"{member} was banned by {inter.author.mention} reason: `{reason}` deleted days of message history: {delete_message_days}")
+        embed = disnake.Embed(
+          title="Member banned",
+          description=f"{member} was banned by {inter.author.mention} with reason `{reason}`",
+          color=disnake.Color.from_rgb(208, 255, 0),
+          timestamp=datetime.datetime.utcnow()
+        )
+        interAvatar = inter.author.avatar or inter.author.default_avatar
+        embed.set_author(name=inter.author, icon_url=interAvatar)
+        embed.set_footer(text=f"Member banned id:{member.id}")
+        await channel_logs.send(embed=embed)
+  
+      except:
+        await inter.response.send_message("I can't ban member that have the same or a higher position than me!", ephemeral=True)
+
+
+def setup(bot):
+  bot.add_cog(Moderation(bot))
