@@ -5,14 +5,6 @@ import json
 from disnake.ext import commands
 
 
-if not os.path.isfile("./config.json"):
-  sys.exit("Config file not found")
-
-else:
-  with open("./config.json") as file:
-    config = json.load(file)
-
-
 class formattationCode(commands.Cog):
 
   def __init__(self, bot):
