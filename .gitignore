@@ -1,4 +1,5 @@
 .env
-./slashCommands/__pycache__/*
-./cogs/__pycache__/*
-./__pycache__/*
+logs/*
+__pycache__/*
+slashCommands/__pycache__/*
+cogs/__pycache__/*

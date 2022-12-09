@@ -1,26 +1,20 @@
+from __future__ import annotations
+
 import disnake
-import os
-import sys
-import json
 from disnake.ext import commands
 
+from typing import TYPE_CHECKING
 
-if not os.path.isfile("./config.json"):
-  sys.exit("Config file not found")
-
-else:
-  with open("./config.json") as file:
-    config = json.load(file)
+if TYPE_CHECKING:
+  from bot import SnipyBot
 
 
 class formattationCode(commands.Cog):
-
-  def __init__(self, bot):
+  def __init__(self, bot: SnipyBot):
     self.bot = bot
 
   @commands.command(aliases=['format', 'codeformat', 'cf'])
   async def code(self, ctx):
-    
     embed = disnake.Embed(
       title='Discord code format',
       description="To be able to format a script on Discord follow the instructions below.",
@@ -41,7 +35,6 @@ class formattationCode(commands.Cog):
       inline=False
     )
     await ctx.reply(embed=embed)
-
-      
-def setup(bot):
+ 
+def setup(bot: SnipyBot):
   bot.add_cog(formattationCode(bot))

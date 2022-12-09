@@ -1,11 +1,8 @@
-from ast import Delete
-from distutils import extension
-import os
 import asyncio
 from disnake.ext import commands
 from bot import SnipyBot
 
-from keep_alive import keep_alive
+#from keep_alive import keep_alive
 
 bot = SnipyBot()
 
@@ -53,5 +50,5 @@ async def unload(ctx, folder: str, extension: str) -> None:
         await ctx.reply("An unknown error has occurred", delete_after=10)
       await ctx.message.delete()
 
-keep_alive()
+#keep_alive()
 bot.run()

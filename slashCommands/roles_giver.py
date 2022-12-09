@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 class Dropdown(disnake.ui.Select):
   def __init__(self):
-
     options = [
     disnake.SelectOption(
       label="YouTube", description="You joined the server through YouTube", emoji="❤️"
@@ -78,7 +77,6 @@ class RoleGiver(commands.Cog):
   def __init__(self, bot: SnipyBot):
     self.bot = bot
 
-
   @commands.command()
   @commands.has_permissions(ban_members=True)
   async def create_dropdown_role_giver(self, ctx):
@@ -89,7 +87,6 @@ class RoleGiver(commands.Cog):
       color=disnake.Color.from_rgb(208, 255, 0)
     )
     await ctx.send(embed=embed, view=view)
-
 
 
 def setup(bot: SnipyBot):

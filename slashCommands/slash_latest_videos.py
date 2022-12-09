@@ -1,10 +1,18 @@
+from __future__ import annotations
+
 import aiohttp
+
 import json
-import os
-import disnake
+from os import environ
 import datetime
-from disnake.ext import commands
-from disnake.ext import tasks
+
+import disnake
+from disnake.ext import commands, tasks
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from bot import SnipyBot
 
 class Menu(disnake.ui.View):
   def __init__(self, embeds):
@@ -17,7 +25,6 @@ class Menu(disnake.ui.View):
 
     for i, embed in enumerate(self.embeds):
       embed.set_footer(text=f"Page {i + 1} of {len(self.embeds)}")
-
 
   @disnake.ui.button(emoji="⏪", style=disnake.ButtonStyle.blurple)
   async def first_page(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
@@ -43,7 +50,6 @@ class Menu(disnake.ui.View):
       self.prev_page.disabled = True
     await interaction.response.edit_message(embed=embed, view=self)
 
-  
   @disnake.ui.button(emoji="❌", style=disnake.ButtonStyle.red)
   async def remove(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
     await interaction.response.edit_message(view=None)
@@ -72,10 +78,8 @@ class Menu(disnake.ui.View):
     await interaction.response.edit_message(embed=embed, view=self)
 
 
-
 class SlashLatestVideos(commands.Cog):
-  
-  def __init__(self, bot):
+  def __init__(self, bot: SnipyBot):
     self.bot = bot
     self.videos = []
 
@@ -83,7 +87,7 @@ class SlashLatestVideos(commands.Cog):
   async def get_request(self):
     
     CHANNEL_ID = 'UCfwSZMnpzluV01vjf8ujSwQ'
-    API_KEY = os.getenv('YOUTUBE_KEY')
+    API_KEY = environ['YOUTUBE_KEY']
     
     url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={CHANNEL_ID}&maxResults=10&order=date&type=video&key={API_KEY}'
 
@@ -123,7 +127,8 @@ class SlashLatestVideos(commands.Cog):
   async def latestvideos(self, inter):
     
     await inter.response.send_message(embed=self.videos[0], view=Menu(self.videos))
+    inter.latest_videos_embeds = self.videos
 
       
-def setup(bot):
+def setup(bot: SnipyBot):
   bot.add_cog(SlashLatestVideos(bot))

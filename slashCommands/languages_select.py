@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import disnake
 from disnake.ext import commands
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from bot import SnipyBot
+
 
 class Dropdown(disnake.ui.Select):
-  def __init__(self):
-
+  def __init__(self) -> None:
     options = [
     disnake.SelectOption(
       label="Python", description="You're a Python brogrammer", emoji="🔵"
@@ -62,8 +68,7 @@ class DropdownViewRoles(disnake.ui.View):
     self.add_item(Dropdown())
 
 class Test(commands.Cog):
-
-  def __init__(self, bot):
+  def __init__(self, bot: SnipyBot):
     self.bot = bot
 
   @commands.command()
@@ -78,5 +83,5 @@ class Test(commands.Cog):
     await ctx.send(embed=embed, view=view)
 
 
-def setup(bot):
+def setup(bot: SnipyBot):
   bot.add_cog(Test(bot))

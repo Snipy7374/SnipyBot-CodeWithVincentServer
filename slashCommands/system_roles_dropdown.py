@@ -1,9 +1,18 @@
+from __future__ import annotations
+
 import disnake
 from disnake.ext import commands
+from loguru import logger
+import colorama
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from bot import SnipyBot
+
 
 class Dropdown(disnake.ui.Select):
   def __init__(self):
-
     options = [
     disnake.SelectOption(
       label="Linux", description="The real programmer", emoji="🐧"
@@ -25,7 +34,6 @@ class Dropdown(disnake.ui.Select):
     )
 
   async def callback(self, inter):
-
     roles = {
       "Linux": 943561294575972383,
       "Windows": 943561381930758144,
@@ -36,8 +44,10 @@ class Dropdown(disnake.ui.Select):
     unpicked_roles = [inter.guild.get_role(roles[i]) for i in roles.keys() if i not in inter.data.values]
 
     await inter.author.add_roles(*picked_roles, reason="Picked system roles from Get-Roles channel", atomic=True)
+    logger.info(f"{inter.author} | {inter.author.id} | picked the following roles {', '.join(role.name for role in picked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
     await inter.author.remove_roles(*unpicked_roles, reason="Unpicked system roles from Get-Roles channel", atomic=True)
-    await inter.response.send_message(f"You have now the following system roles: {', '.join([i.mention for i in picked_roles])}", ephemeral=True)
+    logger.info(f"{inter.author} | {inter.author.id} | unpicked the following roles {', '.join(role.name for role in unpicked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
+    await inter.send(f"You have now the following system roles: {', '.join([i.mention for i in picked_roles])}", ephemeral=True)
 
 class ButtonCls(disnake.ui.Button):
   def __init__(self):
@@ -48,19 +58,18 @@ class ButtonCls(disnake.ui.Button):
       style=disnake.ButtonStyle.danger
     )
     self.question_role_id = 939044358903177217
-    self.question_channel_id = 944644870205743164
+    self.question_channel_id = 1014154045268709419
 
   async def callback(self, inter):
-
     question_role = inter.guild.get_role(self.question_role_id)
-    question_channel = inter.guild.get_channel(self.question_channel_id)
 
     if question_role in inter.author.roles:
-      await inter.response.send_message(f"You already have the role {question_role.mention} go to {question_channel.mention} and ask for help!", ephemeral=True)
+      await inter.response.send_message(f"You already have the role {question_role.mention} go to <#{self.question_channel_id}> and ask for help!", ephemeral=True)
 
     else:
       await inter.author.add_roles(question_role, reason="Adding Can I ask a question role from Get-Roles channel")
-      await inter.response.send_message(f"{question_role.mention} was successfully added to your member profile, go to {question_channel.mention} and ask for help!", ephemeral=True)
+      logger.info(f"{colorama.Back.YELLOW}{inter.author} | {inter.author.id}{colorama.Style.RESET_ALL} picked the {question_role.name} role form {inter.guild} {inter.channel.name} | {inter.channel.id}")
+      await inter.response.send_message(f"{question_role.mention} was successfully added to your member profile, go to <#{self.question_channel_id}> and ask for help!", ephemeral=True)
 
 class ButtonView(disnake.ui.View):
   def __init__(self):
@@ -72,10 +81,8 @@ class DropdownViewSystem(disnake.ui.View):
     super().__init__(timeout=None)
     self.add_item(Dropdown())
 
-
 class SystemGiver(commands.Cog):
-
-  def __init__(self, bot):
+  def __init__(self, bot: SnipyBot):
     self.bot = bot
 
   @commands.command()
@@ -89,7 +96,6 @@ class SystemGiver(commands.Cog):
     )
     await ctx.send(embed=embed, view=view)
 
-
   @commands.command()
   @commands.is_owner()
   async def question_giver(self, ctx):
@@ -101,5 +107,5 @@ class SystemGiver(commands.Cog):
     )
     await ctx.send(embed=embed, view=view)
 
-def setup(bot):
+def setup(bot: SnipyBot):
   bot.add_cog(SystemGiver(bot))

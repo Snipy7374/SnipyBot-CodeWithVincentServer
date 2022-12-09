@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import disnake
 from disnake.ext import commands
+import time
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from bot import SnipyBot
 
 
 class SlashFormattationCode(commands.Cog):
-
-  def __init__(self, bot):
+  def __init__(self, bot: SnipyBot):
     self.bot = bot
-
 
   @commands.slash_command(description="Send the syntax of Discord code format.")
   async def codeformat(self, inter):
-
+    
     embed = disnake.Embed(
       title='Discord code format',
       description="To be able to format a script on Discord follow the instructions below.",
@@ -23,7 +28,7 @@ class SlashFormattationCode(commands.Cog):
     )
     embed.add_field(
       name="Syntax",
-      value="The `<lang>` parameter must be replaced by the code of your script (example: py)\n\```<lang>\nyour code here...\n```"
+      value="The `<lang>` parameter must be replaced by the code of your script (example: py)\n```<lang>\nyour code here...\n```"
     )
     embed.add_field(
       name='Docs',
@@ -31,7 +36,8 @@ class SlashFormattationCode(commands.Cog):
       inline=False
     )
     await inter.response.send_message(embed=embed)
+    print((time.perf_counter_ns() - inter.start_time)/1e+9)
 
-      
-def setup(bot):
+
+def setup(bot: SnipyBot):
   bot.add_cog(SlashFormattationCode(bot))

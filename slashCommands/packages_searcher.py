@@ -1,11 +1,22 @@
-import os
-import json
+from __future__ import annotations
+
 from disnake import Embed
 from disnake.ext import commands
 import disnake
-from typing import Optional, Union, Dict, Any, List
+
+from typing import (
+  Optional,
+  Union,
+  Dict,
+  Any,
+  List,
+  TYPE_CHECKING
+)
+
 import aiohttp
 
+if TYPE_CHECKING:
+  from bot import SnipyBot
 
 class Package:
   author: str
@@ -30,22 +41,22 @@ class Package:
   def __init__(self, *, data: Dict[str, Any]) -> None:
     self.data = data
 
-    __info_dict = self.data.get("info")
-    self.author = __info_dict.get("author")
+    __info_dict = self.data.get("info", {})
+    self.author = __info_dict.get("author", None)
     self.author_email = __info_dict.get("author_email")
     self.classifiers = __info_dict.get("classifiers", None)
     self.description = __info_dict.get("descriptions", None)
     self.docs_url = __info_dict.get("docs_url", None)
     self.home_page = __info_dict.get("home_page", None)
-    self.license = __info_dict.get("license")
-    self.package_name = __info_dict.get("name")
-    self.package_url = __info_dict.get("package_url")
+    self.license = __info_dict.get("license", None)
+    self.package_name = __info_dict.get("name", None)
+    self.package_url = __info_dict.get("package_url", None)
     self.project_urls = __info_dict.get("project_urls", None)
-    self.summary = __info_dict.get("summary")
-    self.version = __info_dict.get("version")
+    self.summary = __info_dict.get("summary", None)
+    self.version = __info_dict.get("version", None)
 
     __info_dict_releases = self.data.get("releases", None)
-    self.releases = __info_dict_releases.keys() or None
+    self.releases = __info_dict_releases.keys() if __info_dict_releases else None
 
     self.vulnerabilities = self.data.get("vulnerabilities", None)
 
@@ -58,7 +69,7 @@ class PackagesSearcher(commands.Cog):
   BASE_URL: str = "https://pypi.org/pypi/{package}/json"
   PYPI_ICON: str = "https://cdn.discordapp.com/emojis/766274397257334814.png"
   
-  def __init__(self, bot) -> None:
+  def __init__(self, bot: SnipyBot) -> None:
     self.bot = bot
 
 
@@ -76,6 +87,9 @@ class PackagesSearcher(commands.Cog):
           
         elif response.status == 200 and response.content_type == "application/json":
           return await response.json()
+        
+        else:
+          return f"Something went wrong searching {package_name}"
 
 
   @packages.sub_command(description="Retrieve information about packages")
@@ -137,5 +151,5 @@ class PackagesSearcher(commands.Cog):
     
 
 
-def setup(bot):
+def setup(bot: SnipyBot):
   bot.add_cog(PackagesSearcher(bot))
