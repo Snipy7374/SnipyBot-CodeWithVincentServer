@@ -1,6 +1,4 @@
 from datetime import datetime
-import aiofiles
-
 from pathlib import Path
 import os
 import json
@@ -18,11 +16,13 @@ from disnake import (
     AppCmdInter
 )
 
+import aiofiles
+
 from constants import BotConstants
 from _logging import setup_logging, log_message, _logger
-from slashCommands.languages_select import DropdownViewRoles
-from slashCommands.system_roles_dropdown import DropdownViewSystem, ButtonView
-from slashCommands.roles_giver import DropdownView
+from slash_commands.languages_select import DropdownViewRoles
+from slash_commands.system_roles_dropdown import DropdownViewSystem, ButtonView
+from slash_commands.roles_giver import DropdownView
 from monkey_patches import apply_monkey_patch
 
 
@@ -40,7 +40,7 @@ class SnipyBot(commands.Bot):
             command_prefix=commands.when_mentioned, 
             help_command=None, # type: ignore
             intents=Intents.default(),
-            activity=Game(name='Commands: mention me!'),
+            activity=Game(name="Commands: mention me!"),
             allowed_mentions=allowed_mentions,
             owner_id=710570210159099984,
             reload=True,
@@ -91,7 +91,7 @@ class SnipyBot(commands.Bot):
         )
         self._handlers = self.logger._core.handlers # type: ignore
         self.TOKEN: str = BotConstants.token
-        self.my_extensions: set[str] = {'cogs', 'slashCommands'}
+        self.my_extensions: set[str] = {"cogs", "slash_commands"}
         self.github_repo: str = BotConstants.github_repository
         self.ignore_files: list[str] = ["__init__.py",]
         self._before_slash_command_invoke = self.my_before_slash_command_invoke
@@ -101,16 +101,16 @@ class SnipyBot(commands.Bot):
     def __log_filter(self, record) -> bool:
         # filter to not output colorized messages
         ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        return not any(ansi_escape.findall(record['message']))  
+        return not any(ansi_escape.findall(record["message"]))  
     
     async def on_ready(self) -> None:
-        self.logger.info(f'Logged in as {self.user}  -  latency {self.latency}')
+        self.logger.info(f"Logged in as {self.user}  -  latency {self.latency}")
         log_message(function_name=self.on_ready.__qualname__, message="<red>Test</>", level="INFO")
 
     async def start(self, *, reconnect: bool = True) -> None:
-        self.logger.info(f'Starting the bot at {datetime.utcnow()}')
+        self.logger.info(f"Starting the bot at {datetime.utcnow()}")
         # This function is similar to a Setup_hook function
-        # Load an setup here database connections etc...
+        # call setups here database connections etc...
         self.load_exts()
         await self.load_json_info()
         self.uptime_start: datetime = datetime.utcnow()
@@ -123,7 +123,7 @@ class SnipyBot(commands.Bot):
     
     async def my_after_slash_command_invoke(self, inter: AppCmdInter) -> None:
         exec_time = (perf_counter_ns() - inter.start_time) / 1e+9 # type: ignore
-        log_message(function_name=self.my_after_slash_command_invoke.__qualname__, message=f"<Y>{inter.author}</> - <Y>{inter.author.id}</> | {inter.guild} - {inter.guild_id} | Command <r>{inter.application_command.qualified_name}</> was executed in <g>{exec_time}s</>", level="INFO")
+        log_message(function_name=self.my_after_slash_command_invoke.__qualname__, message=f"<Y>{inter.author}</> - <Y>{inter.author.id}</> | {inter.guild} - {inter.guild_id} | Command <r>{inter.application_command.name}</> was executed in <g>{exec_time}s</>", level="INFO")
 
         if (original_msg:=await inter.edit_original_response()).embeds and hasattr(inter, "latest_videos_embeds"):
             for embed in inter.latest_videos_embeds: # type: ignore
@@ -147,15 +147,15 @@ class SnipyBot(commands.Bot):
 
     def load_exts(self) -> None:
         for i in self.my_extensions:
-            if os.path.isdir(f'{i}'):
-              for file in os.listdir(f'{i}'):
-                if file.endswith('.py') and file not in self.ignore_files:
-                  super().load_extension(f'{i}.{file[:-3]}')
-                  self.logger.info(f'{file} extension path was loaded succesfully')
+            if os.path.isdir(f"{i}"):
+              for file in os.listdir(f"{i}"):
+                if file.endswith(".py") and file not in self.ignore_files:
+                  super().load_extension(f"{i}.{file[:-3]}")
+                  self.logger.info(f"{file} extension path was loaded succesfully")
     
     async def load_json_info(self) -> None:
-        json_path: Path = Path('config.json')
-        async with aiofiles.open(json_path, 'r') as f:
+        json_path: Path = Path("config.json")
+        async with aiofiles.open(json_path, "r") as f:
             content = await f.read()
         json_data: dict[str, Any] = json.loads(content)
 

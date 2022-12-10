@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import aiohttp
-
 import json
 from os import environ
 import datetime
+from typing import TYPE_CHECKING
 
+import aiohttp
 import disnake
 from disnake.ext import commands, tasks
-from _logging import log_message, _logger
 
-from typing import TYPE_CHECKING
+from _logging import log_message, _logger
 
 if TYPE_CHECKING:
   from bot import SnipyBot
@@ -102,22 +101,22 @@ class SlashLatestVideos(commands.Cog):
     FILTERS = "&maxResults=10&order=date&type=video"
     API_KEY = environ['YOUTUBE_KEY']
     
-    url = f'{BASE_URL}{SEARCH_ENDPOINT}{CHANNEL_ID}{FILTERS}&key={API_KEY}'
+    url = f"{BASE_URL}{SEARCH_ENDPOINT}{CHANNEL_ID}{FILTERS}&key={API_KEY}"
 
     log_message(function_name="get_request", message=f"Making request to <b><e>{BASE_URL}{SEARCH_ENDPOINT}{CHANNEL_ID}{FILTERS}</e></b>")
     async with aiohttp.ClientSession() as session:
       async with session.get(url) as response:
         json_data = json.loads(await response.text())
         
-        for i in json_data['items']:
-          snippet = i.get('snippet')
-          ids = i.get('id')
-          thumb = snippet.get('thumbnails')
-          high_img = thumb.get('high')
-          high_img_url = high_img.get('url')
+        for i in json_data["items"]:
+          snippet = i.get("snippet")
+          ids = i.get("id")
+          thumb = snippet.get("thumbnails")
+          high_img = thumb.get("high")
+          high_img_url = high_img.get("url")
 
-          time = snippet.get('publishedAt')
-          date = datetime.datetime.fromisoformat(time[:-1]+'+00:00')
+          time = snippet.get("publishedAt")
+          date = datetime.datetime.fromisoformat(time[:-1]+"+00:00")
           
           embed = disnake.Embed(
             title=f"{snippet.get('title')}",
@@ -125,7 +124,7 @@ class SlashLatestVideos(commands.Cog):
             color=disnake.Color.from_rgb(208, 255, 0)
           )
           embed.set_author(
-            name='YouTube', url=f"https://www.youtube.com/c/CodewithVincent"
+            name="YouTube", url="https://www.youtube.com/c/CodewithVincent"
           )
           embed.set_image(
             url=high_img_url

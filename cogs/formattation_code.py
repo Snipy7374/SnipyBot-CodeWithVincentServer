@@ -1,9 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import disnake
 from disnake.ext import commands
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
   from bot import SnipyBot
@@ -13,10 +12,10 @@ class formattationCode(commands.Cog):
   def __init__(self, bot: SnipyBot):
     self.bot = bot
 
-  @commands.command(aliases=['format', 'codeformat', 'cf'])
+  @commands.command(aliases=["format", "codeformat"])
   async def code(self, ctx):
     embed = disnake.Embed(
-      title='Discord code format',
+      title="Discord code format",
       description="To be able to format a script on Discord follow the instructions below.",
       color=disnake.Color.from_rgb(208, 255, 0),
     )
@@ -30,7 +29,7 @@ class formattationCode(commands.Cog):
       value="The `<lang>` parameter must be replaced by the code of your script (example: py)\n\```<lang>\nyour code here...\n```"
     )
     embed.add_field(
-      name='Docs',
+      name="Docs",
       value="You can find more information on **[Discord Markdown Guide](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline- '')**.",
       inline=False
     )
