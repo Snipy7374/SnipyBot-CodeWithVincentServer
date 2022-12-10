@@ -1,10 +1,4 @@
 from __future__ import annotations
-import attrs
-
-from disnake import Embed
-from disnake.ext import commands
-import disnake
-
 from typing import (
     Optional,
     Any,
@@ -12,7 +6,12 @@ from typing import (
     TypedDict
 )
 
+import attrs
+
 import aiohttp
+import disnake
+from disnake import Embed
+from disnake.ext import commands
 
 if TYPE_CHECKING:
     from bot import SnipyBot

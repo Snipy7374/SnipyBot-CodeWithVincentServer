@@ -1,13 +1,15 @@
 import logging
-from loguru import logger, _colorizer
-from sys import _getframe, stderr
 import re
+
+from sys import _getframe, stderr
+from typing import Literal
+
+from loguru import logger, _colorizer
 
 from constants import BotConstants
 
-from typing import Literal
-
 _logger = logger
+
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):

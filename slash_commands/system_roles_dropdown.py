@@ -1,14 +1,13 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import disnake
 from disnake.ext import commands
-from loguru import logger
-import colorama
 
-from typing import TYPE_CHECKING
+from _logging import _logger
 
 if TYPE_CHECKING:
-  from bot import SnipyBot
+    from bot import SnipyBot
 
 
 class Dropdown(disnake.ui.Select):
@@ -44,9 +43,9 @@ class Dropdown(disnake.ui.Select):
     unpicked_roles = [inter.guild.get_role(roles[i]) for i in roles.keys() if i not in inter.data.values]
 
     await inter.author.add_roles(*picked_roles, reason="Picked system roles from Get-Roles channel", atomic=True)
-    logger.info(f"{inter.author} | {inter.author.id} | picked the following roles {', '.join(role.name for role in picked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
+    _logger.info(f"{inter.author} | {inter.author.id} | picked the following roles {', '.join(role.name for role in picked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
     await inter.author.remove_roles(*unpicked_roles, reason="Unpicked system roles from Get-Roles channel", atomic=True)
-    logger.info(f"{inter.author} | {inter.author.id} | unpicked the following roles {', '.join(role.name for role in unpicked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
+    _logger.info(f"{inter.author} | {inter.author.id} | unpicked the following roles {', '.join(role.name for role in unpicked_roles)} from {inter.guild} {inter.channel.name} | {inter.channel.id}")
     await inter.send(f"You have now the following system roles: {', '.join([i.mention for i in picked_roles])}", ephemeral=True)
 
 class ButtonCls(disnake.ui.Button):
@@ -68,44 +67,47 @@ class ButtonCls(disnake.ui.Button):
 
     else:
       await inter.author.add_roles(question_role, reason="Adding Can I ask a question role from Get-Roles channel")
-      logger.info(f"{colorama.Back.YELLOW}{inter.author} | {inter.author.id}{colorama.Style.RESET_ALL} picked the {question_role.name} role form {inter.guild} {inter.channel.name} | {inter.channel.id}")
+      _logger.info(f"<Y>{inter.author}</> | <Y>{inter.author.id}</> picked the {question_role.name} role form {inter.guild} {inter.channel.name} | {inter.channel.id}")
       await inter.response.send_message(f"{question_role.mention} was successfully added to your member profile, go to <#{self.question_channel_id}> and ask for help!", ephemeral=True)
 
+
 class ButtonView(disnake.ui.View):
-  def __init__(self):
-    super().__init__(timeout=None)
-    self.add_item(ButtonCls())
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(ButtonCls())
+
 
 class DropdownViewSystem(disnake.ui.View):
-  def __init__(self):
-    super().__init__(timeout=None)
-    self.add_item(Dropdown())
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(Dropdown())
+
 
 class SystemGiver(commands.Cog):
-  def __init__(self, bot: SnipyBot):
-    self.bot = bot
+    def __init__(self, bot: SnipyBot):
+        self.bot = bot
 
-  @commands.command()
-  @commands.is_owner()
-  async def system_giver(self, ctx):
-    view = DropdownViewSystem()
-    embed = disnake.Embed(
-      title="System",
-      description="> 🐧 Linux\n> 💻 Windows\n> 🍎MacOS",
-      color=disnake.Color.from_rgb(208, 255, 0)
-    )
-    await ctx.send(embed=embed, view=view)
+    @commands.command()
+    @commands.is_owner()
+    async def system_giver(self, ctx):
+            view = DropdownViewSystem()
+            embed = disnake.Embed(
+                title="System",
+                description="> 🐧 Linux\n> 💻 Windows\n> 🍎MacOS",
+                color=disnake.Color.from_rgb(208, 255, 0)
+            )
+            await ctx.send(embed=embed, view=view)
 
-  @commands.command()
-  @commands.is_owner()
-  async def question_giver(self, ctx):
-    view = ButtonView()
-    embed = disnake.Embed(
-      title="Can someone help me?",
-      description="To get access to the questions channel, please press the button below!",
-      color=disnake.Color.from_rgb(208, 255, 0)
-    )
-    await ctx.send(embed=embed, view=view)
+    @commands.command()
+    @commands.is_owner()
+    async def question_giver(self, ctx):
+            view = ButtonView()
+            embed = disnake.Embed(
+                title="Can someone help me?",
+                description="To get access to the questions channel, please press the button below!",
+                color=disnake.Color.from_rgb(208, 255, 0)
+            )
+            await ctx.send(embed=embed, view=view)
 
 def setup(bot: SnipyBot):
-  bot.add_cog(SystemGiver(bot))
+    bot.add_cog(SystemGiver(bot))

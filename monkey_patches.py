@@ -1,3 +1,11 @@
+import re
+import sys
+
+from os.path import basename, splitext
+from threading import current_thread
+from multiprocessing import current_process
+
+
 from loguru import _logger
 from loguru._get_frame import get_frame
 from loguru._datetime import aware_now
@@ -12,14 +20,6 @@ from loguru._contextvars import ContextVar
 from loguru._colorizer import Colorizer
 from loguru._file_sink import FileSink
 
-from os.path import basename, splitext
-from threading import current_thread
-from multiprocessing import current_process
-import re
-import sys
-import disnake
-
-from typing import Optional
 
 __all__ = (
     "MonkeyPatchedLogger",
@@ -27,6 +27,7 @@ __all__ = (
 
 context = ContextVar("loguru_context", default={})
 start_time = aware_now()
+
 
 class MonkeyPatchedLogger(_logger.Logger):
     def __init__(self, *args, **kwargs) -> None:

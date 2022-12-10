@@ -1,14 +1,16 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
-import disnake
-from disnake.ext import commands
 import sys
 import datetime
 
-from typing import TYPE_CHECKING
+import disnake
+from disnake.ext import commands
+
 
 if TYPE_CHECKING:
-  from bot import SnipyBot
+    from bot import SnipyBot
+
 
 class AboutBot(commands.Cog):
   def __init__(self, bot: SnipyBot):
@@ -22,36 +24,36 @@ class AboutBot(commands.Cog):
   async def about(self, inter):
 
     embed = disnake.Embed(
-      title='Info',
-      color=disnake.Color.from_rgb(208, 255, 0)
+        title='Info',
+        color=disnake.Color.from_rgb(208, 255, 0)
     )
     embed.add_field(
-      name="Owner",
-      value=f"<@{self.bot.owner_id}>",
-      inline=False
+        name="Owner",
+        value=f"<@{self.bot.owner_id}>",
+        inline=False
     )
     embed.add_field(
-      name="Source code",
-      value=self.bot.github_repo,
-      inline=False
+        name="Source code",
+        value=self.bot.github_repo,
+        inline=False
     )
     embed.add_field(
-      name="Language & version",
-      value=f"`{self.language}`  -  `{'.'.join(str(i) for i in self.version)}`",
-      inline=False
+        name="Language & version",
+        value=f"`{self.language}`  -  `{'.'.join(str(i) for i in self.version)}`",
+        inline=False
     )
     embed.add_field(
-      name="Api library",
-      value=f"`Disnake`  -  `{'.'.join(str(i) for i in self.library_version)}` (`{self.library_PEP}`)",
-      inline=False
+        name="Api library",
+        value=f"`Disnake`  -  `{'.'.join(str(i) for i in self.library_version)}` (`{self.library_PEP}`)",
+        inline=False
     )
     embed.add_field(
-      name='Uptime since',
-      value=f'{datetime.datetime.utcnow() - self.bot.uptime_start}'
+        name="Uptime since",
+        value=f"{datetime.datetime.utcnow() - self.bot.uptime_start}"
     )
     await inter.response.send_message(embed=embed)
 
 
 def setup(bot: SnipyBot):
-  bot.add_cog(AboutBot(bot))
+    bot.add_cog(AboutBot(bot))
     
