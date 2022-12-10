@@ -7,6 +7,7 @@ from constants import BotConstants
 
 from typing import Literal
 
+_logger = logger
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -29,7 +30,7 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def log_message(*, function_name: str, message: str, level: Literal["DEBUG", "INFO"], args=(), kwargs={}) -> None:
+def log_message(*, function_name: str, message: str, level: Literal["DEBUG", "INFO"] = "INFO", args=(), kwargs={}) -> None:
     # this function make me able to format messages using tag colors
     # eg:
     # "<red>Test</> <yellow>Snipy#7374 - 7104....</> used ...."

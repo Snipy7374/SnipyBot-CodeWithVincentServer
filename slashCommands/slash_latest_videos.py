@@ -8,6 +8,7 @@ import datetime
 
 import disnake
 from disnake.ext import commands, tasks
+from _logging import log_message, _logger
 
 from typing import TYPE_CHECKING
 
@@ -15,16 +16,25 @@ if TYPE_CHECKING:
   from bot import SnipyBot
 
 class Menu(disnake.ui.View):
-  def __init__(self, embeds):
-    super().__init__(timeout=None)
+  def __init__(self, embeds, interaction):
+    super().__init__(timeout=360)
     self.embeds = embeds
     self.embed_count = 0
 
     self.first_page.disabled = True
     self.prev_page.disabled = True
 
+    self.original_interaction: disnake.AppCmdInter = interaction
+
     for i, embed in enumerate(self.embeds):
       embed.set_footer(text=f"Page {i + 1} of {len(self.embeds)}")
+  
+  async def on_timeout(self) -> None:
+    await super().on_timeout()
+    if embeds:=(await self.original_interaction.original_message()).embeds:
+      for embed in embeds:
+        embed.set_footer(text=f"Command timed out!")
+    await self.original_interaction.edit_original_response(embeds=embeds)
 
   @disnake.ui.button(emoji="⏪", style=disnake.ButtonStyle.blurple)
   async def first_page(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
@@ -86,11 +96,15 @@ class SlashLatestVideos(commands.Cog):
   @tasks.loop(minutes=5.0)
   async def get_request(self):
     
-    CHANNEL_ID = 'UCfwSZMnpzluV01vjf8ujSwQ'
+    BASE_URL = "https://www.googleapis.com/youtube/v3/"
+    SEARCH_ENDPOINT = "search?part=snippet&channelId="
+    CHANNEL_ID = "UCfwSZMnpzluV01vjf8ujSwQ"
+    FILTERS = "&maxResults=10&order=date&type=video"
     API_KEY = environ['YOUTUBE_KEY']
     
-    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={CHANNEL_ID}&maxResults=10&order=date&type=video&key={API_KEY}'
+    url = f'{BASE_URL}{SEARCH_ENDPOINT}{CHANNEL_ID}{FILTERS}&key={API_KEY}'
 
+    log_message(function_name="get_request", message=f"Making request to <b><e>{BASE_URL}{SEARCH_ENDPOINT}{CHANNEL_ID}{FILTERS}</e></b>")
     async with aiohttp.ClientSession() as session:
       async with session.get(url) as response:
         json_data = json.loads(await response.text())
@@ -117,6 +131,8 @@ class SlashLatestVideos(commands.Cog):
             url=high_img_url
           )
           self.videos.append(embed)
+    _logger.debug(f"Incoming request response {json_data}") # i can't use my custom logger here cause the dict rais problems with the 
+    # tag parser, i could monkeypatch it too in a future version
     return json_data
 
   @commands.Cog.listener()
@@ -126,7 +142,7 @@ class SlashLatestVideos(commands.Cog):
   @commands.slash_command(description="Send the 10 latest videos of CodeWithVincent youtune channel.")
   async def latestvideos(self, inter):
     
-    await inter.response.send_message(embed=self.videos[0], view=Menu(self.videos))
+    await inter.response.send_message(embed=self.videos[0], view=Menu(self.videos, interaction=inter))
     inter.latest_videos_embeds = self.videos
 
       

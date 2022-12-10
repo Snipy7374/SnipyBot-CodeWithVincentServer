@@ -18,10 +18,8 @@ from disnake import (
     AppCmdInter
 )
 
-from loguru import logger
-
 from constants import BotConstants
-from _logging import setup_logging, log_message
+from _logging import setup_logging, log_message, _logger
 from slashCommands.languages_select import DropdownViewRoles
 from slashCommands.system_roles_dropdown import DropdownViewSystem, ButtonView
 from slashCommands.roles_giver import DropdownView
@@ -49,7 +47,7 @@ class SnipyBot(commands.Bot):
             status=Status.streaming,
             )
 
-        self.logger = logger
+        self.logger = _logger
         self.logging_level = BotConstants.log_level
         setup_logging()
 
@@ -129,9 +127,9 @@ class SnipyBot(commands.Bot):
 
         if (original_msg:=await inter.edit_original_response()).embeds and hasattr(inter, "latest_videos_embeds"):
             for embed in inter.latest_videos_embeds: # type: ignore
-                embed.set_footer(text=f"Executed in {exec_time}s")
+                embed.set_footer(text=f"{embed.footer.text} | Executed in {exec_time}s")
             for embed in original_msg.embeds:
-                embed.set_footer(text=f"Executed in {exec_time}s")
+                embed.set_footer(text=f"{embed.footer.text} | Executed in {exec_time}s")
             await inter.edit_original_message(embeds=original_msg.embeds)
 
         elif (original_msg:=await inter.original_response()).embeds:
