@@ -6,6 +6,8 @@ This project doesn't have a license yet, any reproduction or modify is not permi
 
 # TODO
 - Add the bot custom version
+- Rework the execution time counter for slash commands
+- Add a top level folder called 'SnipyBot' and move config files and other outside it
 - Add flake8, black & other tools config
 - Increase max char per line to remove some noqa/s
 - ~~Add log messages to other files~~ (rework log messages of slash_latest_videos.py & system_roles_dropdown.py)
