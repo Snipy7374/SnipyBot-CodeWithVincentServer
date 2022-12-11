@@ -6,21 +6,28 @@ from datetime import datetime
 from pathlib import Path
 from time import perf_counter_ns
 
-from typing import Any
+from typing import Any, NamedTuple, Literal
 
 import aiofiles
 from disnake import Intents, Game, AllowedMentions, Status, AppCmdInter
 from disnake.ext import commands
 
 from constants import BotConstants
-from _logging import setup_logging, log_message, _logger
-from slash_commands.languages_select import DropdownViewRoles
-from slash_commands.system_roles_dropdown import DropdownViewSystem, ButtonView
-from slash_commands.roles_giver import DropdownView
+from _logging import setup_logging, log_message, _logger, LogLevel
+from slash_commands import DropdownView, DropdownViewRoles, DropdownViewSystem, ButtonView
 from monkey_patches import apply_monkey_patch
 
 
-__all__ = ("SnipyBot",)
+__all__ = ("SnipyBot", "BotVersion",)
+
+
+class BotVersion(NamedTuple):
+    major: int
+    minor: int
+    micro: int
+    releaselevel: Literal["alpha", "beta", "final"]
+
+bot_version: BotVersion = BotVersion(major=0, minor=1, micro=0, releaselevel="alpha")
 
 
 class SnipyBot(commands.Bot):
@@ -87,7 +94,6 @@ class SnipyBot(commands.Bot):
         log_message(
             function_name=self.on_ready.__qualname__,
             message="<red>Test</>",
-            level="INFO",
         )
 
     async def start(self, *, reconnect: bool = True) -> None:
@@ -112,7 +118,6 @@ class SnipyBot(commands.Bot):
                 {inter.guild} - {inter.guild_id} | Command <r>\
                 {inter.application_command.name}</> was executed in \
                 <g>{exec_time}s</>",
-            level="INFO",
         )
 
         if (original_msg := await inter.edit_original_response()).embeds and hasattr(  # noqa: E501
@@ -139,17 +144,15 @@ class SnipyBot(commands.Bot):
         self.add_view(ButtonView())
 
     def load_exts(self) -> None:
-        for i in self.my_extensions:
-            if os.path.isdir(f"{i}"):
-                for file in os.listdir(f"{i}"):
-                    if file.endswith(".py") and file not in self.ignore_files:
-                        super().load_extension(f"{i}.{file[:-3]}")
-                        self.logger.info(
-                            f"{file} extension path was loaded succesfully"
-                        )
+        for extension in self.my_extensions:
+            self.load_extensions(extension)
+            log_message(
+                function_name=self.load_exts.__qualname__,
+                message=f"<y>{extension}</> loaded <g>successfully</>"
+            )
 
     async def load_json_info(self) -> None:
-        json_path: Path = Path("config.json")
+        json_path: Path = Path("C:\\Users\\davil\\OneDrive\\Desktop\\MyBot\\snipy_bot\\SnipyBot\\config.json")
         async with aiofiles.open(json_path, "r") as f:
             content = await f.read()
         json_data: dict[str, Any] = json.loads(content)

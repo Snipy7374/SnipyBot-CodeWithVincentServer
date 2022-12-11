@@ -1,5 +1,6 @@
 .env
-logs/*
-__pycache__/*
-slash_commands/__pycache__/*
-cogs/__pycache__/*
+SnipyBot/logs/*
+SnipyBot/__pycache__/*
+SnipyBot/slash_commands/__pycache__/*
+SnipyBot/cogs/__pycache__/*
+SnipyBot/__pycache__/*

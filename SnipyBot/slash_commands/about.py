@@ -7,6 +7,7 @@ import datetime
 import disnake
 from disnake.ext import commands
 
+from bot import bot_version
 
 if TYPE_CHECKING:
     from bot import SnipyBot
@@ -44,16 +45,18 @@ class AboutBot(commands.Cog):
             inline=False
         )
         embed.add_field(
+            name="Bot version",
+            value=f"`{bot_version.major}.{bot_version.minor}.{bot_version.micro}{bot_version.releaselevel}`",
+            inline=False
+        )
+        embed.add_field(
             name="Language & version",
-            value=f"`{self.language}`  -  `\
-                {'.'.join(str(i) for i in self.version)}`",
+            value=f"`{self.language}`  -  `{'.'.join(str(i) for i in self.version)}`",
             inline=False,
         )
         embed.add_field(
             name="Api library",
-            value=f"`Disnake`  -  `\
-                {'.'.join(str(i) for i in self.library_version)}`\
-                (`{self.library_PEP}`)",
+            value=f"`Disnake`  -  `{'.'.join(str(i) for i in self.library_version)}` (`{self.library_PEP}`)",
             inline=False,
         )
         embed.add_field(
