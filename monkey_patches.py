@@ -21,7 +21,8 @@ from loguru._colorizer import Colorizer
 from loguru._file_sink import FileSink
 
 
-__all__ = ("MonkeyPatchedLogger",)
+__all__ = ("MonkeyPatchedLogger", "apply_monkey_patch")
+
 
 context = ContextVar("loguru_context", default={})
 start_time = aware_now()

@@ -6,6 +6,12 @@ This project doesn't have a license yet, any reproduction or modify is not permi
 
 # TODO
 - Add flake8, black & other tools config
-- Add log messages to other files
+- Increase max char per line to remove some noqa/s
+- ~~Add log messages to other files~~ (rework log messages of slash_latest_videos.py & system_roles_dropdown.py)
 - Improve existing features
 - Add new features
+- Resolve typing issues
+- Use raw components istead of shitty persistent views
+- Add preformatted message styles
+- Add LOG LEVEL as constants or as enum instead of passig them as str
+- Fix the logger, it won't take a dict as message and colorize it (ig monkeypatch needed)

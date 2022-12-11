@@ -8,6 +8,13 @@ from loguru import logger, _colorizer
 
 from constants import BotConstants
 
+__all__ = (
+    "_logger",
+    "log_message",
+    "escape_ansi_codes",
+    "setup_logging",
+)
+
 _logger = logger
 
 
@@ -36,7 +43,7 @@ def log_message(
     *,
     function_name: str,
     message: str,
-    level: Literal["DEBUG", "INFO"] = "INFO",
+    level: Literal["DEBUG", "INFO", "ERROR"] = "INFO",
     args=(),
     kwargs={},
 ) -> None:
@@ -47,6 +54,7 @@ def log_message(
     _levels = {
         "DEBUG": logger.debug,
         "INFO": logger.info,
+        "ERROR": logger.error,
     }  # TO DO: add the other log levels
     message = f"<cyan>:</><blue>{function_name}</><cyan>:</> - {message}"
     colorizer = _colorizer.Colorizer()

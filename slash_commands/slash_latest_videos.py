@@ -14,6 +14,9 @@ from _logging import log_message, _logger
 if TYPE_CHECKING:
     from bot import SnipyBot
 
+__all__ = (
+    "Menu",
+)
 
 class Menu(disnake.ui.View):
     def __init__(self, embeds, interaction):

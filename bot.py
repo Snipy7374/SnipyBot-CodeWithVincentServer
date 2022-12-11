@@ -20,6 +20,9 @@ from slash_commands.roles_giver import DropdownView
 from monkey_patches import apply_monkey_patch
 
 
+__all__ = ("SnipyBot",)
+
+
 class SnipyBot(commands.Bot):
     """My custom Bot subclass"""
 

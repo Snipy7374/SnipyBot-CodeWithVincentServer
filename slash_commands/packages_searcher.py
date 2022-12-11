@@ -8,9 +8,19 @@ import disnake
 from disnake import Embed
 from disnake.ext import commands
 
+from _logging import log_message, _logger
+
 if TYPE_CHECKING:
     from bot import SnipyBot
 
+__all__ = (
+    "RawPackagePayload",
+    "ParsedPayload",
+    "PackageAuthor",
+    "PackageMetadata",
+    "Package",
+    "flatten_dict",
+)
 
 class RawPackagePayload(TypedDict):
     info: dict[str, str]
@@ -33,7 +43,7 @@ class PackageAuthor:
 
 
 @attrs.define(kw_only=True, repr=True, slots=True)
-class _Package:
+class PackageMetadata:
     name: str
     description: Optional[str]
     version: str
@@ -51,19 +61,19 @@ class _Package:
 @attrs.define(kw_only=True, repr=True)
 class Package:
     author: PackageAuthor
-    package: _Package
+    package: PackageMetadata
 
 
 def flatten_dict(data: RawPackagePayload) -> ParsedPayload:
-    output: ParsedPayload = {}  # type: ignore # i need to fix something here big skill issue
+    parsed_payload: ParsedPayload = {}  # type: ignore # i need to fix something here big skill issue
     raw_info: dict[str, Any] = data.get("info", {})
 
-    output["info"] = raw_info
-    output["author"] = {
+    parsed_payload["info"] = raw_info
+    parsed_payload["author"] = {
         "name": raw_info.get("author"),
         "email": raw_info.get("author_email", None),
     }
-    output["package"] = {
+    parsed_payload["package"] = {
         "name": raw_info.get("name"),
         "description": raw_info.get("description", None),
         "version": raw_info.get("version"),
@@ -77,7 +87,7 @@ def flatten_dict(data: RawPackagePayload) -> ParsedPayload:
         "releases_metadata": data.get("releases", {}),
         "vulnerabilities": data.get("vulnerabilities", None),
     }
-    return output
+    return parsed_payload
 
 
 class PackagesSearcher(commands.Cog):
@@ -96,7 +106,7 @@ class PackagesSearcher(commands.Cog):
             async with session.get(
                 self.BASE_URL.format(package=package_name)
             ) as response:
-
+                response_content = await response.json()
                 if response.status == 404:
                     return {"Error": f"Couldn't find the package {package_name}"}
 
@@ -104,21 +114,25 @@ class PackagesSearcher(commands.Cog):
                     response.status == 200
                     and response.content_type == "application/json"
                 ):
-                    return await response.json()
+                    _logger.debug(f"Request made <g>successfully</>, obtained <e>{response_content}</>")
+                    return response_content
 
                 else:
+                    _logger.error(
+                        f"<r>Something went wrong while searching \
+                        the package '{package_name}' original response={response_content}</>",
+                    )
                     return {"Error": f"Something went wrong searching {package_name}"}
 
     @packages.sub_command(description="Retrieve information about packages")
     async def search(self, inter, package_name: str) -> None:
-
         response = await self.pypi_request(package_name)
         raw_payload: RawPackagePayload = RawPackagePayload(**response)
         flatten_payload = flatten_dict(raw_payload)
         package_author = PackageAuthor(**(flatten_payload.get("author")))
-        package = _Package(**(flatten_payload.get("package")))
+        package = PackageMetadata(**(flatten_payload.get("package")))
 
-        if isinstance(response, dict):
+        if isinstance(response, dict) and "Error" not in response.keys():
             package_obj = Package(author=package_author, package=package)
 
             embed = Embed(
@@ -160,6 +174,11 @@ class PackagesSearcher(commands.Cog):
             )
             embed.set_thumbnail(url=self.PYPI_ICON)
             await inter.response.send_message(embed=embed)
+            log_message(
+                function_name=self.search.qualified_name,
+                message=f"<Y>{inter.author}</> | <Y>{inter.author.id}</> searched the <r>'{package_name}'</> package \
+                <e>{inter.guild}</> | <e>{inter.guild.id}</>"
+            )
 
         else:
             embed = Embed(
@@ -169,6 +188,10 @@ class PackagesSearcher(commands.Cog):
             )
 
             await inter.response.send_message(embed=embed, delete_after=10.0)
+            _logger.error(
+                f"<r>Something went wrong while executing {self.search.qualified_name} \
+                response={response}</>"
+            )
 
 
 def setup(bot: SnipyBot):

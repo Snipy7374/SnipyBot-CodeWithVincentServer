@@ -4,9 +4,14 @@ from typing import TYPE_CHECKING
 import disnake
 from disnake.ext import commands
 
+from _logging import log_message
+
 if TYPE_CHECKING:
     from bot import SnipyBot
 
+__all__ = (
+    "DropdownView",
+)
 
 class Dropdown(disnake.ui.Select):
     def __init__(self):
@@ -44,58 +49,69 @@ class Dropdown(disnake.ui.Select):
             custom_id="DropdownRoleGiver",
         )
 
-    async def callback(self, interaction: disnake.MessageInteraction):
-        if interaction.data.values[0] != "Reset":
-            roles = {
-                "YouTube": 939032108104572929,
-                "TikTok": 939031962952282173,
-                "Reddit": 939034123555708969,
-                "Other": 939032139691872287,
-            }
-            picked_role = interaction.guild.get_role(roles[interaction.data.values[0]])
-            newbie_role = interaction.guild.get_role(939024793389400106)
+    async def callback(self, inter: disnake.MessageInteraction):
+        if inter.data.values:
+            if inter.data.values[0] != "Reset":
+                roles = {
+                    "YouTube": 939032108104572929,
+                    "TikTok": 939031962952282173,
+                    "Reddit": 939034123555708969,
+                    "Other": 939032139691872287,
+                }
+                picked_role = inter.guild.get_role(roles[inter.data.values[0]])
+                newbie_role = inter.guild.get_role(939024793389400106)
 
-            add_this_shit = (picked_role, newbie_role)
+                add_this_shit = (picked_role, newbie_role)
 
-            list_roles = roles.values()
+                list_roles = roles.values()
 
-            if not picked_role in interaction.author.roles and not [
-                i.id for i in interaction.author.roles if i.id in list_roles
-            ]:
-                await interaction.author.add_roles(
-                    *add_this_shit,
-                    reason="Picked Start role from Start-Here channel",
-                    atomic=True,
-                )
-                await interaction.response.send_message(
-                    f"{picked_role.mention} was succesfully added to your member profile (note also {newbie_role.mention} was added to give you the access to the server)",
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    "You already have a start role!", ephemeral=True
-                )
+                if not picked_role in inter.author.roles and not [
+                    i.id for i in inter.author.roles if i.id in list_roles
+                ]:
+                    await inter.author.add_roles(
+                        *add_this_shit,
+                        reason="Picked Start role from Start-Here channel",
+                        atomic=True,
+                    )
+                    await inter.response.send_message(
+                        f"{picked_role.mention} was succesfully added to your member profile (note also {newbie_role.mention} was added to give you the access to the server)",
+                        ephemeral=True,
+                    )
+                    log_message(
+                        function_name=self.callback.__qualname__,
+                        message=f"<Y>{inter.author}</> | <Y>{inter.author.id}</> interacted with \
+                        {self.__class__} and picked <r>{'</>, <r>'.join(role.name for role in add_this_shit)}</> - <e>{inter.guild}</> | <e>{inter.guild.id}</>",
+                    )
+                else:
+                    await inter.response.send_message(
+                        "You already have a start role!", ephemeral=True
+                    )
 
-        elif interaction.data.values[0] == "Reset":
-            roles = [
-                939032108104572929,
-                939031962952282173,
-                939034123555708969,
-                939032139691872287,
-            ]
-            roles_obj = tuple((interaction.guild.get_role(i) for i in roles))
-            try:
-                await interaction.author.remove_roles(
-                    *roles_obj, reason="Reset start role", atomic=True
-                )
-                await interaction.response.send_message(
-                    "Start roles resetted", ephemeral=True
-                )
-            except:
-                await interaction.response.send_message(
-                    "Something went wrong, contact the owner of the bot (see /about)",
-                    ephemeral=True,
-                )
+            elif inter.data.values[0] == "Reset":
+                roles = [
+                    939032108104572929,
+                    939031962952282173,
+                    939034123555708969,
+                    939032139691872287,
+                ]
+                roles_obj = tuple((inter.guild.get_role(i) for i in roles)) # need to fix this shit
+                try:
+                    await inter.author.remove_roles(
+                        *roles_obj, reason="Reset start role", atomic=True
+                    )
+                    await inter.response.send_message(
+                        "Start roles resetted", ephemeral=True
+                    )
+                    log_message(
+                        function_name=self.callback.__qualname__,
+                        message=f"<Y>{inter.author}</> | <Y>{inter.author.id}</> interacted with \
+                        {self.__class__} and unpicked <r>{'</>, <r>'.join(role.name for role in roles_obj)}</> - <e>{inter.guild}</> | <e>{inter.guild.id}</>",
+                    )
+                except:
+                    await inter.response.send_message(
+                        "Something went wrong, contact the owner of the bot (see </about:0>)",
+                        ephemeral=True,
+                    )
 
 
 class DropdownView(disnake.ui.View):
@@ -118,6 +134,11 @@ class RoleGiver(commands.Cog):
             color=disnake.Color.from_rgb(208, 255, 0),
         )
         await ctx.send(embed=embed, view=view)
+        log_message(
+            function_name=self.create_dropdown_role_giver.qualified_name,
+            message=f"<Y>{ctx.author}</> | <Y>{ctx.author.id}</> created the roles giver panel\
+            in <e>{ctx.channel}</> | <e>{ctx.channel.id}</> channel - <e>{inter.guild}</> | <e>{inter.guild.id}</>",
+        )
 
 
 def setup(bot: SnipyBot):

@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 import disnake
 from disnake.ext import commands
 
+from _logging import log_message
+
 if TYPE_CHECKING:
     from bot import SnipyBot
 
@@ -81,6 +83,13 @@ class Dropdown(disnake.ui.Select):
             f"You have now the following coding languages: {', '.join(out_roles)}",
             ephemeral=True,
         )
+        log_message(
+            function_name=self.callback.__qualname__,
+            message=f"<Y>{inter.author}</> | <Y>{inter.author.id}</> interacted with\
+            {self} picking {', '.join(role.name for role in picked_roles)} and\
+            unpicking {', '.join(role.name for role in unpicked_roles)} - \
+            <e>{inter.guild}</> | <e> {inter.guild.id}</>"
+        )
 
 
 class DropdownViewRoles(disnake.ui.View):
@@ -103,6 +112,12 @@ class Test(commands.Cog):
             color=disnake.Color.from_rgb(208, 255, 0),
         )
         await ctx.send(embed=embed, view=view)
+        log_message(
+            function_name=self.create_roles.qualified_name,
+            message=f"<Y>{ctx.author}</> | <Y>{ctx.author.id}</> created the <r>'create_roles'</> panel\
+            in the channel <y>{ctx.channel.name}</> | <y>{ctx.channel.id}</> - \
+            <e>{ctx.guild}</> | <e>{ctx.guild.id}</>"
+        )
 
 
 def setup(bot: SnipyBot):
