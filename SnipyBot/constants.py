@@ -12,7 +12,7 @@ class BotConstants:
     name = "Snipy Bot"
     token = environ.get("TOKEN_BOT", "")
     log_level = environ.get("LOG_LEVEL", "DEBUG")
-    log_file_path = environ.get("LOG_FILE_PATH", "logs/test_log.txt")
+    log_file_path = environ.get("LOG_FILE_PATH", "./logs/test_log.txt")
     log_file_message_format = environ.get(
         "LOG_FILE_MESSAGE_FORMAT",
         "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name} | {message}",
