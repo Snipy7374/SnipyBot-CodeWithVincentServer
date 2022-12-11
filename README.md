@@ -5,6 +5,7 @@ The Snipy's bot for the [CodeWithVincent](https://discord.gg/nZDemDzdUr) Discord
 This project doesn't have a license yet, any reproduction or modify is not permitted
 
 # TODO
+- Add the bot custom version
 - Add flake8, black & other tools config
 - Increase max char per line to remove some noqa/s
 - ~~Add log messages to other files~~ (rework log messages of slash_latest_videos.py & system_roles_dropdown.py)
