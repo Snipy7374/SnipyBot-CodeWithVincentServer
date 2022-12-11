@@ -1,10 +1,5 @@
 from __future__ import annotations
-from typing import (
-    Optional,
-    Any,
-    TYPE_CHECKING,
-    TypedDict
-)
+from typing import Optional, Any, TYPE_CHECKING, TypedDict
 
 import attrs
 
@@ -60,13 +55,13 @@ class Package:
 
 
 def flatten_dict(data: RawPackagePayload) -> ParsedPayload:
-    output: ParsedPayload = {} # type: ignore # i need to fix something here big skill issue
+    output: ParsedPayload = {}  # type: ignore # i need to fix something here big skill issue
     raw_info: dict[str, Any] = data.get("info", {})
 
     output["info"] = raw_info
     output["author"] = {
         "name": raw_info.get("author"),
-        "email": raw_info.get("author_email", None)
+        "email": raw_info.get("author_email", None),
     }
     output["package"] = {
         "name": raw_info.get("name"),
@@ -88,7 +83,7 @@ def flatten_dict(data: RawPackagePayload) -> ParsedPayload:
 class PackagesSearcher(commands.Cog):
     BASE_URL: str = "https://pypi.org/pypi/{package}/json"
     PYPI_ICON: str = "https://cdn.discordapp.com/emojis/766274397257334814.png"
-    
+
     def __init__(self, bot: SnipyBot) -> None:
         self.bot = bot
 
@@ -98,23 +93,24 @@ class PackagesSearcher(commands.Cog):
 
     async def pypi_request(self, package_name: str) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.BASE_URL.format(package=package_name)) as response:
+            async with session.get(
+                self.BASE_URL.format(package=package_name)
+            ) as response:
 
                 if response.status == 404:
                     return {"Error": f"Couldn't find the package {package_name}"}
-            
-                elif response.status == 200 and response.content_type == "application/json":
+
+                elif (
+                    response.status == 200
+                    and response.content_type == "application/json"
+                ):
                     return await response.json()
-            
+
                 else:
                     return {"Error": f"Something went wrong searching {package_name}"}
 
     @packages.sub_command(description="Retrieve information about packages")
-    async def search(
-        self, 
-        inter,
-        package_name: str
-    ) -> None:
+    async def search(self, inter, package_name: str) -> None:
 
         response = await self.pypi_request(package_name)
         raw_payload: RawPackagePayload = RawPackagePayload(**response)
@@ -126,49 +122,50 @@ class PackagesSearcher(commands.Cog):
             package_obj = Package(author=package_author, package=package)
 
             embed = Embed(
-            title=package_obj.package.name,
-            url=package_obj.package.url,
-            description=package_obj.package.summary,
-            color=disnake.Color.from_rgb(208, 255, 0)
+                title=package_obj.package.name,
+                url=package_obj.package.url,
+                description=package_obj.package.summary,
+                color=disnake.Color.from_rgb(208, 255, 0),
             )
             embed.add_field(
                 name="Author",
                 value=f"{package_obj.author.name} - {package_obj.author.email}",
-                inline=False
+                inline=False,
             )
-            if package_obj.package.description and len(package_obj.package.description) > 1024:
-                package_obj.package.description = package_obj.package.description[:1021] + "..."
+            if (
+                package_obj.package.description
+                and len(package_obj.package.description) > 1024
+            ):
+                package_obj.package.description = (
+                    package_obj.package.description[:1021] + "..."
+                )
             embed.add_field(
-                name="Description",
-                value=package_obj.package.description,
-                inline=False
+                name="Description", value=package_obj.package.description, inline=False
             )
             embed.add_field(
                 name="Classifiers",
-                value=', '.join(package_obj.package.classifiers or [])
+                value=", ".join(package_obj.package.classifiers or []),
             )
             embed.add_field(
                 name="Other info",
                 value=f"**[{package_obj.package.name} v{package_obj.package.version}]({package_obj.package.url} '')** - {package_obj.package.license}",
-                inline=False
+                inline=False,
             )
             releases = [i for i in (package_obj.package.releases_metadata).keys()]
-            releases = releases[:len(releases)-15:-1]
+            releases = releases[: len(releases) - 15 : -1]
             embed.add_field(
                 name="Releases (latest 15 - from latest to oldest)",
-                value=', '.join(releases),
-                inline=False
+                value=", ".join(releases),
+                inline=False,
             )
-            embed.set_thumbnail(
-                url=self.PYPI_ICON
-            )
+            embed.set_thumbnail(url=self.PYPI_ICON)
             await inter.response.send_message(embed=embed)
-        
+
         else:
             embed = Embed(
                 title=package_name,
                 description=response,
-                color=disnake.Color.from_rgb(210, 43, 43)
+                color=disnake.Color.from_rgb(210, 43, 43),
             )
 
             await inter.response.send_message(embed=embed, delete_after=10.0)

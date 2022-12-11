@@ -32,12 +32,22 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def log_message(*, function_name: str, message: str, level: Literal["DEBUG", "INFO"] = "INFO", args=(), kwargs={}) -> None:
+def log_message(
+    *,
+    function_name: str,
+    message: str,
+    level: Literal["DEBUG", "INFO"] = "INFO",
+    args=(),
+    kwargs={},
+) -> None:
     # this function make me able to format messages using tag colors
     # eg:
     # "<red>Test</> <yellow>Snipy#7374 - 7104....</> used ...."
     # this is more cool than using colorama and other shit
-    _levels = {"DEBUG": logger.debug, "INFO": logger.info,} # TO DO: add the other log levels
+    _levels = {
+        "DEBUG": logger.debug,
+        "INFO": logger.info,
+    }  # TO DO: add the other log levels
     message = f"<cyan>:</><blue>{function_name}</><cyan>:</> - {message}"
     colorizer = _colorizer.Colorizer()
     prepared_message = colorizer.prepare_message(message, args, kwargs)
@@ -48,7 +58,7 @@ def log_message(*, function_name: str, message: str, level: Literal["DEBUG", "IN
 def escape_ansi_codes(string: str) -> str:
     # this functions is the exact same function used in the monkeypatch
     ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-    return ansi_escape.sub('', string)  
+    return ansi_escape.sub("", string)
 
 
 def setup_logging():

@@ -18,7 +18,9 @@ class Dropdown(disnake.ui.Select):
                 label="Html/Css", description="You're a typical Web Dev", emoji="🟠"
             ),
             disnake.SelectOption(
-                label="JavaScript", description="How can you use a language that doesn't support 1.7976931348623157e+309", emoji="🟡"
+                label="JavaScript",
+                description="How can you use a language that doesn't support 1.7976931348623157e+309",
+                emoji="🟡",
             ),
             disnake.SelectOption(
                 label="C/C++/C#", description="You're the final brogrammer", emoji="🟢"
@@ -27,10 +29,14 @@ class Dropdown(disnake.ui.Select):
                 label="Java", description="An unofficial Python version", emoji="🔴"
             ),
             disnake.SelectOption(
-                label="SQL/NoSQL", description="You're most likely an SQL injecter", emoji="🟤"
+                label="SQL/NoSQL",
+                description="You're most likely an SQL injecter",
+                emoji="🟤",
             ),
             disnake.SelectOption(
-                label="Assembly", description="msg db 'Hello, World!', 0x0d, 0x0a, '$' ;", emoji="🟣"
+                label="Assembly",
+                description="msg db 'Hello, World!', 0x0d, 0x0a, '$' ;",
+                emoji="🟣",
             ),
         ]
 
@@ -39,7 +45,7 @@ class Dropdown(disnake.ui.Select):
             min_values=1,
             max_values=len(options),
             options=options,
-            custom_id="RolesGiver"
+            custom_id="RolesGiver",
         )
 
     async def callback(self, inter):
@@ -52,14 +58,29 @@ class Dropdown(disnake.ui.Select):
             "SQL/NoSQL": 943561155551559770,
             "Assembly": 943561249801773096,
         }
-        picked_roles = [inter.guild.get_role(roles[inter.data.values[i]]) for i in range(len(inter.data.values))]
-        unpicked_roles = [inter.guild.get_role(roles[i]) for i in roles.keys() if i not in inter.data.values]
+        picked_roles = [
+            inter.guild.get_role(roles[inter.data.values[i]])
+            for i in range(len(inter.data.values))
+        ]
+        unpicked_roles = [
+            inter.guild.get_role(roles[i])
+            for i in roles.keys()
+            if i not in inter.data.values
+        ]
 
-
-        await inter.author.add_roles(*picked_roles, reason='Picked Coding roles from Get-Roles channel', atomic=True)
-        await inter.author.remove_roles(*unpicked_roles, reason="Unpicked Coding roles from Get-Roles channel")
+        await inter.author.add_roles(
+            *picked_roles,
+            reason="Picked Coding roles from Get-Roles channel",
+            atomic=True,
+        )
+        await inter.author.remove_roles(
+            *unpicked_roles, reason="Unpicked Coding roles from Get-Roles channel"
+        )
         out_roles = [i.mention for i in picked_roles]
-        await inter.response.send_message(f"You have now the following coding languages: {', '.join(out_roles)}", ephemeral=True)
+        await inter.response.send_message(
+            f"You have now the following coding languages: {', '.join(out_roles)}",
+            ephemeral=True,
+        )
 
 
 class DropdownViewRoles(disnake.ui.View):
@@ -77,9 +98,9 @@ class Test(commands.Cog):
     async def create_roles(self, ctx):
         view = DropdownViewRoles()
         embed = disnake.Embed(
-        title="Extra roles",
-        description="""**Coding Languages**\n\n> 🔵 Python\n> 🟠 Html/CSS\n> 🟡 JavaScript\n> 🟢 C/C++/C#\n> 🔴 Java\n> 🟤 SQL/NoSQL\n> 🟣 Assembly""",
-        color=disnake.Color.from_rgb(208, 255, 0)
+            title="Extra roles",
+            description="""**Coding Languages**\n\n> 🔵 Python\n> 🟠 Html/CSS\n> 🟡 JavaScript\n> 🟢 C/C++/C#\n> 🔴 Java\n> 🟤 SQL/NoSQL\n> 🟣 Assembly""",
+            color=disnake.Color.from_rgb(208, 255, 0),
         )
         await ctx.send(embed=embed, view=view)
 
