@@ -17,4 +17,7 @@ This project doesn't have a license yet, any reproduction or modify is not permi
 - Use raw components istead of shitty persistent views
 - Add preformatted message styles
 - ~~Add LOG LEVEL as constants or as enum instead of passig them as str~~
+- ~~Create and add a database~~
+- ~~Complete to write database boilerplate methods~~
+- Create logs files as json and load them to the database (maybe in the future this could have an API) -- i'm pretty unsure on this feature
 - Fix the logger, it won't take a dict as message and colorize it (ig monkeypatch needed)
