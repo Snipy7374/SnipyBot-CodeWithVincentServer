@@ -30,9 +30,10 @@ if TYPE_CHECKING:
         WarnWhereUniqueInput,
         WarnUpsertInput,
         WarnCountAggregateInput,
-        WarnCountAggregateOutput,
         UserInclude,
         WarnInclude,
+        WarnOrderByInput,
+        WarnCountAggregateOutput
     )
 
     UserPayload: TypeAlias = Union[UserCreateInput, UserOptionalCreateInput]
@@ -46,6 +47,9 @@ __all__: tuple[str, ...] = (
     "SnipyDatabase",
 )
 
+    # TODO:
+    # - implement user queries
+    # - implement all server operations
 
 class WarnUpdatePayload(WarnUpdateInput):
     user_id: int
@@ -107,12 +111,19 @@ class SnipyDatabase:
         del self
     
     async def connect(self) -> None:
+        """Connect to the database. If already connected raises a RuntimeError.
+        
+        Raises
+        ------
+        `RuntimeError` if you're already connected to the database.
+        """
         if self._connected:
             raise RuntimeError("You're already connected to the database.")
         await self.database.connect()
         self._connected = True
     
     async def disconnect(self) -> None:
+        """Disconnect from the database."""
         await self.database.disconnect()
         self._connected = False
     
@@ -128,6 +139,32 @@ class SnipyDatabase:
         include_all: bool = False,
         include_partial: bool = False,
     ) -> PrismaWarn | None:
+        """
+        Create a warn entry on the database.
+
+        Parameters
+        ----------
+        user_id: `int`
+            The ID of the user to link to the new Warn entry.
+        moderator_id: `int`
+            The ID of the moderator that created the warn.
+        server_id: `int`
+            The ID of the server where the warn was created.
+        expires_at: Union[`datetime`, `None`] = `None`
+            When the warn will expires.
+        reason: Union[`str`, `None`] = `None`
+            The reason to link to the warn.
+        include_all: `bool` = `False`
+            Wether to include on the returned warn object all the nested
+            objects.
+        include_partial: `bool` = `False`
+            Wether to include on the returned warn object only partial nested
+            objects.
+        
+        Returns
+        -------
+        Union[`PrismaWarn`, `None`]
+        """
         _warn_payload: WarnCreateInput = {
             "user": {
                 "connect": {
@@ -384,6 +421,76 @@ class SnipyDatabase:
         )
     
     @check_connection
+    async def find_warn(
+        self,
+        *,
+        warn_id: str,
+        include_all: bool = False,
+        include_partial: bool = False,
+    ) -> PrismaWarn | None:
+        include_payload = self._warn_include_generator(
+            include_all=include_all,
+            include_partial=include_partial,
+        )
+
+        return await self.database.warn.find_unique(
+            where={
+                "id": warn_id
+            },
+            include=include_payload
+        )
+
+    @check_connection
+    async def find_many_warn(
+        self,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        where: WarnWhereInput | None = None,
+        warn_id_for_cursor: str | None = None,
+        include_all: bool = False,
+        include_partial: bool = False,
+        order: WarnOrderByInput | list[WarnOrderByInput] | None = None
+    ) -> list[PrismaWarn]:
+        include_payload = self._warn_include_generator(
+            include_all=include_all,
+            include_partial=include_partial
+        )
+
+        return await self.database.warn.find_many(
+            take=limit,
+            skip=offset,
+            where=where,
+            cursor={"id": warn_id_for_cursor} if warn_id_for_cursor else None,
+            include=include_payload,
+            order=order
+        )
+    
+    @check_connection
+    async def find_first_warn(
+        self,
+        *,
+        offset: int | None = None,
+        where: WarnWhereInput | None = None,
+        warn_id_for_cursor: str | None = None,
+        include_all: bool = False,
+        include_partial: bool = False,
+        order: WarnOrderByInput | list[WarnOrderByInput] | None = None,
+    ) -> PrismaWarn | None:
+        include_payload = self._warn_include_generator(
+            include_all=include_all,
+            include_partial=include_partial
+        )
+
+        return await self.database.warn.find_first(
+            skip=offset,
+            where=where,
+            cursor={"id": warn_id_for_cursor} if warn_id_for_cursor else None,
+            include=include_payload,
+            order=order
+        )
+
+    @check_connection
     async def count_warns(
         self,
         *,
@@ -404,11 +511,6 @@ class SnipyDatabase:
             where=where,
             cursor=_cursor_payload
         )
-
-    # TODO:
-    # - implement warn queries
-    # - implement user queries
-    # - implement all server operations
 
     @check_connection
     async def update_user(
