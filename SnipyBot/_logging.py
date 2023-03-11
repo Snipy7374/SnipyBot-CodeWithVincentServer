@@ -2,7 +2,6 @@ import logging
 import re
 
 from sys import _getframe, stderr
-from enum import Enum
 from typing import Union, Literal
 
 from loguru import logger, _colorizer

@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-import time
-
 import disnake
 from disnake.ext import commands
 
@@ -23,11 +21,17 @@ class SlashFormattationCode(commands.Cog):
             color=disnake.Color.from_rgb(208, 255, 0),
         )
         embed.add_field(
-            name="Result", value="```py\nprint('Hello World!')\n```", inline=False
+            name="Result",
+            value="```py\nprint('Hello World!')\n```",
+            inline=False,
         )
         embed.add_field(
             name="Syntax",
-            value="The `<lang>` parameter must be replaced by the code of your script (example: py)\n```<lang>\nyour code here...\n```",
+            value=r"""The `<lang>` parameter must be replaced by the code of your script (example: py)
+
+            \```py
+            print('Hello World!')
+            \```""",
         )
         embed.add_field(
             name="Docs",
@@ -35,7 +39,6 @@ class SlashFormattationCode(commands.Cog):
             inline=False,
         )
         await inter.response.send_message(embed=embed)
-        print((time.perf_counter_ns() - inter.start_time) / 1e9)
 
 
 def setup(bot: SnipyBot):

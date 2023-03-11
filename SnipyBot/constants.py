@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from enums import LogLevel
 
-load_dotenv("C:\\Users\\davil\\OneDrive\\Desktop\\MyBot\\snipy_bot\\.env")
+load_dotenv("..\\.env")
 
 __all__ = ("BotConstants",)
 

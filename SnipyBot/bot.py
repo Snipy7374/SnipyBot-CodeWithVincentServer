@@ -1,4 +1,3 @@
-import os
 import json
 import re
 
@@ -13,7 +12,7 @@ from disnake import Intents, Game, AllowedMentions, Status, AppCmdInter
 from disnake.ext import commands
 
 from constants import BotConstants
-from _logging import setup_logging, log_message, _logger, LogLevel
+from _logging import setup_logging, log_message, _logger
 from slash_commands import DropdownView, DropdownViewRoles, DropdownViewSystem, ButtonView
 from monkey_patches import apply_monkey_patch
 
@@ -114,21 +113,21 @@ class SnipyBot(commands.Bot):
         exec_time = (perf_counter_ns() - inter.start_time) / 1e9  # type: ignore # noqa: E501
         log_message(
             function_name=self.my_after_slash_command_invoke.__qualname__,
-            message=f"<Y>{inter.author}</> - <Y>{inter.author.id}</> | \
-                {inter.guild} - {inter.guild_id} | Command <r>\
-                {inter.application_command.name}</> was executed in \
-                <g>{exec_time}s</>",
+            message=(
+                f"<Y>{inter.author}</> - <Y>{inter.author.id}</> | "
+                f"{inter.guild} - {inter.guild_id} | Command <r> "
+                f"{inter.application_command.name}</> was executed in "
+                f"<g>{exec_time}s</>"
+            ),
         )
 
         if (original_msg := await inter.edit_original_response()).embeds and hasattr(  # noqa: E501
             inter, "latest_videos_embeds"
         ):
             for embed in inter.latest_videos_embeds:  # type: ignore
-                embed.set_footer(text=f"{embed.footer.text} \
-                    | Executed in {exec_time}s")
+                embed.set_footer(text=f"{embed.footer.text} | Executed in {exec_time}s")
             for embed in original_msg.embeds:
-                embed.set_footer(text=f"{embed.footer.text} \
-                    | Executed in {exec_time}s")
+                embed.set_footer(text=f"{embed.footer.text} | Executed in {exec_time}s")
             await inter.edit_original_message(embeds=original_msg.embeds)
 
         elif (original_msg := await inter.original_response()).embeds:
@@ -152,7 +151,7 @@ class SnipyBot(commands.Bot):
             )
 
     async def load_json_info(self) -> None:
-        json_path: Path = Path("C:\\Users\\davil\\OneDrive\\Desktop\\MyBot\\snipy_bot\\SnipyBot\\config.json")
+        json_path: Path = Path(".\\config.json")
         async with aiofiles.open(json_path, "r") as f:
             content = await f.read()
         json_data: dict[str, Any] = json.loads(content)

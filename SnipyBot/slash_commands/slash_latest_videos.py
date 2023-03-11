@@ -41,7 +41,7 @@ class Menu(disnake.ui.View):
 
     @disnake.ui.button(emoji="⏪", style=disnake.ButtonStyle.blurple)
     async def first_page(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+        self, _: disnake.ui.Button, interaction: disnake.MessageInteraction
     ):
         self.embed_count = 0
         embed = self.embeds[self.embed_count]
@@ -55,7 +55,7 @@ class Menu(disnake.ui.View):
 
     @disnake.ui.button(emoji="◀", style=disnake.ButtonStyle.secondary)
     async def prev_page(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+        self, _: disnake.ui.Button, interaction: disnake.MessageInteraction
     ):
         self.embed_count -= 1
         embed = self.embeds[self.embed_count]
@@ -69,13 +69,13 @@ class Menu(disnake.ui.View):
 
     @disnake.ui.button(emoji="❌", style=disnake.ButtonStyle.red)
     async def remove(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+        self, _: disnake.ui.Button, interaction: disnake.MessageInteraction
     ):
         await interaction.response.edit_message(view=None)
 
     @disnake.ui.button(emoji="▶", style=disnake.ButtonStyle.secondary)
     async def next_page(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+        self, _: disnake.ui.Button, interaction: disnake.MessageInteraction
     ):
         self.embed_count += 1
         embed = self.embeds[self.embed_count]
@@ -89,7 +89,7 @@ class Menu(disnake.ui.View):
 
     @disnake.ui.button(emoji="⏩", style=disnake.ButtonStyle.blurple)
     async def last_page(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+        self, _: disnake.ui.Button, interaction: disnake.MessageInteraction
     ):
         self.embed_count = len(self.embeds) - 1
         embed = self.embeds[self.embed_count]
@@ -146,7 +146,7 @@ class SlashLatestVideos(commands.Cog):
                     self.videos.append(embed)
         _logger.debug(
             f"Incoming request response {json_data}"
-        )  # i can't use my custom logger here cause the dict rais problems with the
+        )  # i can't use my custom logger here cause the dict raise problems with the
         # tag parser, i could monkeypatch it too in a future version
         return json_data
 

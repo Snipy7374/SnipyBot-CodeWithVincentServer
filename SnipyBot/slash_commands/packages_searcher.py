@@ -65,7 +65,7 @@ class Package:
 
 
 def flatten_dict(data: RawPackagePayload) -> ParsedPayload:
-    parsed_payload: ParsedPayload = {}  # type: ignore # i need to fix something here big skill issue
+    parsed_payload: ParsedPayload = {}  # type: ignore
     raw_info: dict[str, Any] = data.get("info", {})
 
     parsed_payload["info"] = raw_info
@@ -98,7 +98,7 @@ class PackagesSearcher(commands.Cog):
         self.bot = bot
 
     @commands.slash_command()
-    async def packages(self, inter) -> None:
+    async def packages(self, _) -> None:
         return
 
     async def pypi_request(self, package_name: str) -> dict[str, Any]:
