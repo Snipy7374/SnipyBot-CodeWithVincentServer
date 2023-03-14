@@ -5,6 +5,8 @@ import sys
 import datetime
 
 import disnake
+
+from disnake import ApplicationCommandInteraction
 from disnake.ext import commands
 
 from bot import bot_version
@@ -28,26 +30,25 @@ class AboutBot(commands.Cog):
         self.library_PEP = disnake.__version__
 
     @commands.slash_command()
-    async def about(self, inter):
-
+    async def about(self, inter: ApplicationCommandInteraction):
         embed = disnake.Embed(
             title="Info",
-            color=disnake.Color.from_rgb(208, 255, 0)
+            color=disnake.Color.from_rgb(208, 255, 0),
         )
         embed.add_field(
             name="Owner",
             value=f"<@{self.bot.owner_id}>",
-            inline=False
+            inline=False,
         )
         embed.add_field(
             name="Source code",
             value=self.bot.github_repo,
-            inline=False
+            inline=False,
         )
         embed.add_field(
             name="Bot version",
             value=f"`{bot_version.major}.{bot_version.minor}.{bot_version.micro}{bot_version.releaselevel}`",
-            inline=False
+            inline=False,
         )
         embed.add_field(
             name="Language & version",

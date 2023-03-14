@@ -7,6 +7,8 @@ from os import environ
 
 import aiohttp
 import disnake
+
+from disnake import AppCommandInteraction
 from disnake.ext import commands, tasks
 
 from _logging import log_message, _logger
@@ -102,8 +104,7 @@ class Menu(disnake.ui.View):
 
 
 class SlashLatestVideos(commands.Cog):
-    def __init__(self, bot: SnipyBot):
-        self.bot = bot
+    def __init__(self):
         self.videos = []
 
     @tasks.loop(minutes=5.0)
@@ -154,16 +155,13 @@ class SlashLatestVideos(commands.Cog):
     async def on_ready(self):
         await self.get_request()
 
-    @commands.slash_command(
-        description="Send the 10 latest videos of CodeWithVincent youtune channel."
-    )
-    async def latestvideos(self, inter):
-
+    @commands.slash_command(description="Send the 10 latest videos of CodeWithVincent youtune channel.")
+    async def latestvideos(self, inter: AppCommandInteraction):
         await inter.response.send_message(
             embed=self.videos[0], view=Menu(self.videos, interaction=inter)
         )
-        inter.latest_videos_embeds = self.videos
+        inter.latest_videos_embeds = self.videos  # type: ignore
 
 
 def setup(bot: SnipyBot):
-    bot.add_cog(SlashLatestVideos(bot))
+    bot.add_cog(SlashLatestVideos())

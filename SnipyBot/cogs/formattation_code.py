@@ -27,9 +27,11 @@ class formattationCode(commands.Cog):
         )
         embed.add_field(
             name="Syntax",
-            value="The `<lang>` parameter must be replaced by the code\
-                of your script (example: py)\n```<lang>\n\
-                your code here...\n```",
+            value=r"""The `<lang>` parameter must be replaced by the code of your script (example: py)
+
+            \```py
+            print('Hello World!')
+            \```""",
         )
         embed.add_field(
             name="Docs",

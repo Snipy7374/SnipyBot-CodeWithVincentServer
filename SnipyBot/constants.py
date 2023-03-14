@@ -1,9 +1,10 @@
 from os import environ
 from dotenv import load_dotenv
+from datetime import datetime
 
 from enums import LogLevel
 
-load_dotenv("..\\.env")
+load_dotenv("../.env")
 
 __all__ = ("BotConstants",)
 
@@ -12,7 +13,7 @@ class BotConstants:
     name = "Snipy Bot"
     token = environ.get("TOKEN_BOT", "")
     log_level = environ.get("LOG_LEVEL", "DEBUG")
-    log_file_path = environ.get("LOG_FILE_PATH", "./logs/test_log.txt")
+    log_file_path = f'{environ.get("LOG_FILE_PATH", "./logs/")}{datetime.strftime(datetime.now(), "%Y_%m_%d")}.txt'
     log_file_message_format = environ.get(
         "LOG_FILE_MESSAGE_FORMAT",
         "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name} | {message}",

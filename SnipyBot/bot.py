@@ -88,8 +88,7 @@ class SnipyBot(commands.Bot):
         return not any(ansi_escape.findall(record["message"]))
 
     async def on_ready(self) -> None:
-        self.logger.info(f"Logged in as {self.user}  \
-            -  latency {self.latency}")
+        self.logger.info(f"Logged in as {self.user}  -  latency {self.latency}")
         log_message(
             function_name=self.on_ready.__qualname__,
             message="<red>Test</>",
@@ -144,14 +143,14 @@ class SnipyBot(commands.Bot):
 
     def load_exts(self) -> None:
         for extension in self.my_extensions:
-            self.load_extensions(extension)
+            self.load_extensions((Path(extension).absolute()).as_posix())
             log_message(
                 function_name=self.load_exts.__qualname__,
                 message=f"<y>{extension}</> loaded <g>successfully</>"
             )
 
     async def load_json_info(self) -> None:
-        json_path: Path = Path(".\\config.json")
+        json_path: Path = Path("config.json").absolute()
         async with aiofiles.open(json_path, "r") as f:
             content = await f.read()
         json_data: dict[str, Any] = json.loads(content)

@@ -2,7 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import disnake
+
+from disnake import MessageInteraction
 from disnake.ext import commands
+from disnake.ext.commands import Context
 
 from _logging import log_message
 
@@ -49,7 +52,7 @@ class Dropdown(disnake.ui.Select):
             custom_id="DropdownRoleGiver",
         )
 
-    async def callback(self, inter: disnake.MessageInteraction):
+    async def callback(self, inter: MessageInteraction):
         if inter.data.values:
             if inter.data.values[0] != "Reset":
                 roles = {
@@ -121,25 +124,27 @@ class DropdownView(disnake.ui.View):
 
 
 class RoleGiver(commands.Cog):
-    def __init__(self, bot: SnipyBot):
-        self.bot = bot
-
     @commands.command()
     @commands.has_permissions(ban_members=True)
-    async def create_dropdown_role_giver(self, ctx):
+    async def create_dropdown_role_giver(self, ctx: Context):
         view = DropdownView()
         embed = disnake.Embed(
             title="Welcome to Code With Vincent!",
-            description="""Currently our main bot is offline!\nTo acces the server pick a role from the dropdown menù\n\nYouTube: ❤️\nTikTok: 👯‍♂️\nReddit: 🌝\nOther: 👀""",
+            description=(
+            "Currently our main bot is offline!\nTo acces the server pick a role from the"
+            "dropdown menù\n\nYouTube: ❤️\nTikTok: 👯‍♂️\nReddit: 🌝\nOther: 👀"
+            ),
             color=disnake.Color.from_rgb(208, 255, 0),
         )
         await ctx.send(embed=embed, view=view)
         log_message(
             function_name=self.create_dropdown_role_giver.qualified_name,
-            message=f"<Y>{ctx.author}</> | <Y>{ctx.author.id}</> created the roles giver panel\
-            in <e>{ctx.channel}</> | <e>{ctx.channel.id}</> channel - <e>{inter.guild}</> | <e>{inter.guild.id}</>",
+            message=(
+            f"<Y>{ctx.author}</> | <Y>{ctx.author.id}</> created the roles giver panel in"
+            f"<e>{ctx.channel}</> | <e>{ctx.channel.id}</> channel - <e>{ctx.guild}</> | <e>{ctx.guild.id}</>"
+            ),
         )
 
 
 def setup(bot: SnipyBot):
-    bot.add_cog(RoleGiver(bot))
+    bot.add_cog(RoleGiver())

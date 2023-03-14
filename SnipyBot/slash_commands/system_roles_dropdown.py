@@ -2,7 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import disnake
+
+from disnake import MessageInteraction
 from disnake.ext import commands
+from disnake.ext.commands import Context
 
 from _logging import _logger
 
@@ -32,7 +35,7 @@ class Dropdown(disnake.ui.Select):
             custom_id="SystemGiver",
         )
 
-    async def callback(self, inter):
+    async def callback(self, inter: MessageInteraction):
         roles = {
             "Linux": 943561294575972383,
             "Windows": 943561381930758144,
@@ -79,7 +82,7 @@ class ButtonCls(disnake.ui.Button):
         self.question_role_id = 939044358903177217
         self.question_channel_id = 1014154045268709419
 
-    async def callback(self, inter):
+    async def callback(self, inter: MessageInteraction):
         question_role = inter.guild.get_role(self.question_role_id)
 
         if question_role in inter.author.roles:
@@ -115,12 +118,9 @@ class DropdownViewSystem(disnake.ui.View):
 
 
 class SystemGiver(commands.Cog):
-    def __init__(self, bot: SnipyBot):
-        self.bot = bot
-
     @commands.command()
     @commands.is_owner()
-    async def system_giver(self, ctx):
+    async def system_giver(self, ctx: Context):
         view = DropdownViewSystem()
         embed = disnake.Embed(
             title="System",
@@ -131,7 +131,7 @@ class SystemGiver(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def question_giver(self, ctx):
+    async def question_giver(self, ctx: Context):
         view = ButtonView()
         embed = disnake.Embed(
             title="Can someone help me?",
@@ -142,4 +142,4 @@ class SystemGiver(commands.Cog):
 
 
 def setup(bot: SnipyBot):
-    bot.add_cog(SystemGiver(bot))
+    bot.add_cog(SystemGiver())
